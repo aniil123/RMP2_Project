@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="RMP2.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:RMP2"
+    xmlns:v="clr-namespace:RMP2.View"
+    Title="RMP2">
+
+    <ShellContent ContentTemplate="{DataTemplate v:MainPage}"
+              Route="MainPage" />
+    <ShellContent ContentTemplate="{DataTemplate v:NotePage}"
+              Route="NotePage"/>
+
+</Shell>

@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:RMP2.ViewModel"
+             x:Class="RMP2.View.MainPage"
+             Style="{StaticResource ContentPageStyle}">
+
+    <AbsoluteLayout
+        BindingContext="{x:Static vm:MainVM.Instance}">
+        <Grid 
+            AbsoluteLayout.LayoutFlags="SizeProportional"
+            AbsoluteLayout.LayoutBounds="0, 0, 1, 1">
+            <Grid.RowDefinitions>
+                <RowDefinition 
+                    Height="auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Entry
+                Grid.Row="0"
+                Text="{Binding SearchString}"
+                Placeholder="Поиск"/>
+            <ListView 
+                x:Name="notesListView"
+                Grid.Row="1" 
+                ItemsSource="{Binding DisplayedNotes}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <VerticalStackLayout 
+                                Padding="10, 0, 0, 0">
+                                <Label 
+                                    Text="{Binding Name}"
+                                    FontAttributes="Bold"/>
+                                <Label 
+                                    Text="{Binding CreationTime}"/>
+                            </VerticalStackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+        <HorizontalStackLayout 
+            AbsoluteLayout.LayoutFlags="PositionProportional"
+            AbsoluteLayout.LayoutBounds="1, 1"
+            Margin="0, 0, 20, 20">
+            <Button 
+                Text="Изменить"
+                WidthRequest="110"
+                Margin="0, 0, 10, 0"
+                Command="{Binding OpenPageForEditingNoteCommand}"
+                CommandParameter="{Binding SelectedItem, Source={x:Reference notesListView}}"/>
+            <Button
+                Text="Создать"
+                WidthRequest="110"
+                Command="{Binding OpenPageForCreatingNoteCommand}"/>
+        </HorizontalStackLayout>
+    </AbsoluteLayout>
+
+
+</ContentPage>

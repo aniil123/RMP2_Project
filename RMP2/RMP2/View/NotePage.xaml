@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:RMP2.ViewModel"
+             x:Class="RMP2.View.NotePage"
+             Style="{StaticResource ContentPageStyle}">
+    <AbsoluteLayout
+        BindingContext="{Binding NoteOperation, Source={x:Static vm:MainVM.Instance}}">
+        <Grid
+            AbsoluteLayout.LayoutFlags="SizeProportional"
+            AbsoluteLayout.LayoutBounds="0, 0, 1, 1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Entry 
+                Grid.Row="0"
+                Text="{Binding Note.Name}"
+                Placeholder="Название"/>
+            <Editor
+                Grid.Row="1"
+                Text="{Binding Note.Content}"
+                Placeholder="Содержание"
+                VerticalOptions="Fill"/>
+        </Grid>
+        <HorizontalStackLayout 
+            AbsoluteLayout.LayoutFlags="PositionProportional"
+            AbsoluteLayout.LayoutBounds="1, 1"
+            Margin="0, 0, 20, 20">  
+            <Button 
+                Text="Сохранить"
+                WidthRequest="110"
+                Margin="0, 0, 10, 0"
+                Command="{Binding SaveCommand}"/>
+            <Button
+                Text="Отменить"
+                WidthRequest="110"
+                Command="{Binding CancelCommand}"/>
+        </HorizontalStackLayout>
+    </AbsoluteLayout>
+</ContentPage>
