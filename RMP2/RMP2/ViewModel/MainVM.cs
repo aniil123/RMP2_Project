@@ -11,37 +11,51 @@ using RMP2.Model;
 
 namespace RMP2.ViewModel
 {
+    /// <summary>
+    /// Главный класс ViewModel.
+    /// </summary>
     public class MainVM : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// Поля для хранения единственного возможного экземпляра класса <see cref="MainVM"/>.
+        /// </summary>
         private static MainVM _instance;
+
+        /// <summary>
+        /// Текущая выполняемая операция над заметкой.
+        /// </summary>
         private NoteOperation _noteOperation;
+
+        /// <summary>
+        /// Строка для поиска заметок.
+        /// </summary>
         private string _searchString = "";
+
+        /// <summary>
+        /// Коллекция, содержащая все созданные заметки.
+        /// </summary>
         private ObservableCollection<NoteVM> _notes = new ObservableCollection<NoteVM>();
+
+        /// <summary>
+        /// Коллекция для отображения заметок с учетом значения в строке поиска.
+        /// </summary>
         public ObservableCollection<NoteVM> DisplayedNotes { get; } = new ObservableCollection<NoteVM>();
+
+        /// <summary>
+        /// Команда для открытия страницы для создания заметки.
+        /// </summary>
         public Command OpenPageForCreatingNoteCommand { get; private set; }
+
+        /// <summary>
+        /// Команда для открытия страницы для редактирования выбранной заметки.
+        /// </summary>
         public Command OpenPageForEditingNoteCommand { get; private set; }
 
-        public NoteOperation NoteOperation
-        {
-            get => _noteOperation;
-            set
-            {
-                _noteOperation = value;
-                PropertyChanged(this, new PropertyChangedEventArgs(nameof(NoteOperation)));
-            }
-        }
-
-        public string SearchString
-        {
-            get => _searchString;
-            set
-            {
-                _searchString = value;
-                UpdateDisplayedNotes();
-            }
-        }
-
+        /// <summary>
+        /// Возвращает единственный возможный экземпляр класса <see cref="MainVM"/>.
+        /// </summary>
         public static MainVM Instance
         {
             get
@@ -52,6 +66,35 @@ namespace RMP2.ViewModel
             }
         }
 
+        /// <summary>
+        /// Возвращает и задает операцию над заметкой.
+        /// </summary>
+        public NoteOperation NoteOperation
+        {
+            get => _noteOperation;
+            set
+            {
+                _noteOperation = value;
+                PropertyChanged(this, new PropertyChangedEventArgs(nameof(NoteOperation)));
+            }
+        }
+
+        /// <summary>
+        /// Возвращает и задает строку поиска заметок.
+        /// </summary>
+        public string SearchString
+        {
+            get => _searchString;
+            set
+            {
+                _searchString = value;
+                UpdateDisplayedNotes();
+            }
+        }
+
+        /// <summary>
+        /// Инициализирует поля для хранения команд.
+        /// </summary>
         private MainVM() 
         {
             _notes.CollectionChanged += (sender, e) => { UpdateDisplayedNotes(); };
@@ -65,6 +108,9 @@ namespace RMP2.ViewModel
             }
         }
 
+        /// <summary>
+        /// Обновляет коллекцию <see cref="DisplayedNotes"/>.
+        /// </summary>
         private void UpdateDisplayedNotes()
         {
             DisplayedNotes.Clear();
@@ -110,12 +156,20 @@ namespace RMP2.ViewModel
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DisplayedNotes)));
         }
 
+        /// <summary>
+        /// Открывает страницу для создания заметки.
+        /// </summary>
+        /// <param name="parameter"></param>
         private async void OpenPageForCreatingNote(object parameter)
         {
             NoteOperation = new CreatableNote(_notes);
             await Shell.Current.GoToAsync("///" + nameof(NotePage));
         }
 
+        /// <summary>
+        /// Открывает страницу для редактирования заметки.
+        /// </summary>
+        /// <param name="parameter">Заметка, выбранная пользователем для редактирования.</param>
         private async void OpenPageForEditingNote(object parameter)
         {
             if (parameter == null) return;
