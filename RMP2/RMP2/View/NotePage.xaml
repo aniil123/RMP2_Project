@@ -2,11 +2,19 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:sys="clr-namespace:System;assembly=netstandard"
+             xmlns:v="clr-namespace:RMP2.View"
              xmlns:vm="clr-namespace:RMP2.ViewModel"
              x:Class="RMP2.View.NotePage"
              Style="{StaticResource ContentPageStyle}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <v:AppointedTimeToDateTimeConverter x:Key="AppointedTimeToDateTimeConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    
     <AbsoluteLayout
-        BindingContext="{Binding NoteOperation, Source={x:Static vm:MainVM.Instance}}">
+        BindingContext="{x:Static vm:MainVM.Instance}">
         <Grid
             AbsoluteLayout.LayoutFlags="SizeProportional"
             AbsoluteLayout.LayoutBounds="0, 0, 1, 1">
@@ -18,20 +26,20 @@
             <HorizontalStackLayout
                 Grid.Row="0">
                 <TimePicker
-                    Time="{Binding Time}"
+                    Time="{Binding NoteCouch.AppointedTime, Converter={StaticResource AppointedTimeToDateTimeConverter}, ConverterParameter={x:Type sys:TimeSpan}}"
                     Format="HH:mm"/>
                 <DatePicker
-                    Date="{Binding Date}"
+                    Date="{Binding NoteCouch.AppointedTime, Converter={StaticResource AppointedTimeToDateTimeConverter}, ConverterParameter={x:Type sys:DateTime}}"
                     Format="d"
                     MinimumDate="{x:Static sys:DateTime.Today}"/>
             </HorizontalStackLayout>
             <Entry
                 Grid.Row="1"
-                Text="{Binding Note.Name}"
+                Text="{Binding NoteCouch.Name}"
                 Placeholder="Название"/>
             <Editor
                 Grid.Row="2"
-                Text="{Binding Note.Content}"
+                Text="{Binding NoteCouch.Content}"
                 Placeholder="Содержание"
                 VerticalOptions="Fill"/>
         </Grid>

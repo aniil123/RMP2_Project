@@ -52,7 +52,14 @@
             <Button
                 Text="Создать"
                 WidthRequest="110"
+                Margin="0, 0, 10, 0"
                 Command="{Binding OpenPageForCreatingNoteCommand}"/>
+            <Button
+                Text="Удалить"
+                WidthRequest="110"
+                BackgroundColor="Red"
+                Command="{Binding DeleteCommand}"
+                CommandParameter="{Binding SelectedItem, Source={x:Reference notesListView}}"/>
         </HorizontalStackLayout>
     </AbsoluteLayout>
 
