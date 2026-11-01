@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 using System.ComponentModel;
 using RMP2.View;
 using RMP2.Model;
@@ -24,14 +25,14 @@ namespace RMP2.ViewModel
         private static MainVM _instance;
 
         /// <summary>
-        /// Текущая выполняемая операция над заметкой.
-        /// </summary>
-        private NoteOperation _noteOperation;
-
-        /// <summary>
         /// Строка для поиска заметок.
         /// </summary>
         private string _searchString = "";
+
+        /// <summary>
+        /// Объект <see cref="NoteVM"/>, над которым совершается операция: создание или редактирование.
+        /// </summary>
+        private NoteVM _noteCouch;
 
         /// <summary>
         /// Коллекция, содержащая все созданные заметки.
@@ -44,6 +45,11 @@ namespace RMP2.ViewModel
         public ObservableCollection<NoteVM> DisplayedNotes { get; } = new ObservableCollection<NoteVM>();
 
         /// <summary>
+        /// Выбранная пользователем заметка для редактирования.
+        /// </summary>
+        public NoteVM? SelectedNote { get; set; } = null;
+
+        /// <summary>
         /// Команда для открытия страницы для создания заметки.
         /// </summary>
         public Command OpenPageForCreatingNoteCommand { get; private set; }
@@ -52,6 +58,21 @@ namespace RMP2.ViewModel
         /// Команда для открытия страницы для редактирования выбранной заметки.
         /// </summary>
         public Command OpenPageForEditingNoteCommand { get; private set; }
+
+        /// <summary>
+        /// Команда для удаления выбранной заметки.
+        /// </summary>
+        public Command DeleteCommand { get; private set; }
+
+        /// <summary>
+        /// Команда для сохранения внесенных пользователем изменений.
+        /// </summary>
+        public Command SaveCommand { get; private set; }
+
+        /// <summary>
+        /// Команда для отмены внесенных пользователем изменений.
+        /// </summary>
+        public Command CancelCommand { get; private set; }
 
         /// <summary>
         /// Возвращает единственный возможный экземпляр класса <see cref="MainVM"/>.
@@ -63,19 +84,6 @@ namespace RMP2.ViewModel
                 if (_instance == null)
                     _instance = new MainVM();
                 return _instance;
-            }
-        }
-
-        /// <summary>
-        /// Возвращает и задает операцию над заметкой.
-        /// </summary>
-        public NoteOperation NoteOperation
-        {
-            get => _noteOperation;
-            set
-            {
-                _noteOperation = value;
-                PropertyChanged(this, new PropertyChangedEventArgs(nameof(NoteOperation)));
             }
         }
 
@@ -93,6 +101,20 @@ namespace RMP2.ViewModel
         }
 
         /// <summary>
+        /// Возвращает объект <see cref="NoteVM"/>, над которым совершается операция: создание или редактирование.
+        /// </summary>
+        public NoteVM NoteCouch
+        {
+            get => _noteCouch;
+            set
+            {
+                _noteCouch = value;
+                OnPropertyChanged();
+                
+            }
+        }
+
+        /// <summary>
         /// Инициализирует поля для хранения команд.
         /// </summary>
         private MainVM() 
@@ -100,6 +122,10 @@ namespace RMP2.ViewModel
             _notes.CollectionChanged += (sender, e) => { UpdateDisplayedNotes(); };
             OpenPageForCreatingNoteCommand = new Command(OpenPageForCreatingNote);
             OpenPageForEditingNoteCommand = new Command(OpenPageForEditingNote);
+            DeleteCommand = new Command(Delete);
+            SaveCommand = new Command(Save);
+            CancelCommand = new Command(Cancel);
+
             string s = "";
             for (int i = 0; i < 5; i++)
             {
@@ -162,7 +188,7 @@ namespace RMP2.ViewModel
         /// <param name="parameter"></param>
         private async void OpenPageForCreatingNote(object parameter)
         {
-            NoteOperation = new CreatableNote(_notes);
+            NoteCouch = new NoteVM();
             await Shell.Current.GoToAsync("///" + nameof(NotePage));
         }
 
@@ -172,9 +198,56 @@ namespace RMP2.ViewModel
         /// <param name="parameter">Заметка, выбранная пользователем для редактирования.</param>
         private async void OpenPageForEditingNote(object parameter)
         {
-            if (parameter == null) return;
-            NoteOperation = new EditableNote((NoteVM)parameter);
+            if (parameter is null) return;
+            SelectedNote = (NoteVM)parameter;
+            NoteCouch = (NoteVM)SelectedNote.Clone();
             await Shell.Current.GoToAsync("///" + nameof(NotePage));
+        }
+
+        /// <summary>
+        /// Удаляет выбранную заметку.
+        /// </summary>
+        /// <param name="parameter">Удаляемая заметка.</param>
+        private void Delete(object parameter)
+        {
+            if (parameter is null) return;
+            _notes.Remove((NoteVM)parameter);
+        }
+
+        /// <summary>
+        /// Сохраняет внесенные пользователем изменения.
+        /// Возвращает страницу со списком заметок.
+        /// </summary>
+        /// <param name="parameter"></param>
+        private async void Save(object parameter)
+        {
+            if (SelectedNote is null)
+            {
+                NoteCouch.ResetCreationTime();
+                _notes.Insert(0, NoteCouch);
+            }
+            else
+            {
+                SelectedNote.Copy(NoteCouch);
+                SelectedNote.ResetCreationTime();
+                SelectedNote = null;
+            }
+            await Shell.Current.GoToAsync("///" + nameof(MainPage));
+        }
+
+        /// <summary>
+        /// Возвращает страницу со списком заметок.
+        /// </summary>
+        /// <param name="parameter"></param>
+        private async void Cancel(object parameter)
+        {
+            SelectedNote = null;
+            await Shell.Current.GoToAsync("///" + nameof(MainPage));
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string propName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
         }
     }
 }

@@ -93,6 +93,12 @@ namespace RMP2.ViewModel
             return new NoteVM(Name, Content, AppointedTime);
         }
 
+        /// <summary>
+        /// Устанавливает <see cref="CreationTime"/> в значение текущего времени.
+        /// </summary>
+        public void ResetCreationTime()
+            => CreationTime = DateTime.Now;
+
         private void OnPropertyChanged([CallerMemberName] string name = "")
         {
             PropertyChanged(this, new PropertyChangedEventArgs(name));
