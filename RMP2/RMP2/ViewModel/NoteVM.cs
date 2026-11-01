@@ -87,7 +87,7 @@ namespace RMP2.ViewModel
         /// <summary>
         /// Возвращает копию текущего объекта с новым временем создания <see cref="CreationTime"/>.
         /// </summary>
-        /// <returns>Копия текущего объекта с новым временем создания CreationTime.</returns>
+        /// <returns>Копия текущего объекта с новым временем создания <see cref="CreationTime"/>.</returns>
         public object Clone()
         {
             return new NoteVM(Name, Content, AppointedTime);
