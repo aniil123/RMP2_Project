@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.ComponentModel;
 using RMP2.View;
 using RMP2.Model;
+using RMP2.Model.Services;
 
 namespace RMP2.ViewModel
 {
@@ -25,14 +26,19 @@ namespace RMP2.ViewModel
         private static MainVM _instance;
 
         /// <summary>
-        /// Строка для поиска заметок.
+        /// Строка для поиска.
         /// </summary>
         private string _searchString = "";
 
         /// <summary>
-        /// Объект <see cref="NoteVM"/>, над которым совершается операция: создание или редактирование.
+        /// Заметка <see cref="NoteVM"/>, над которой совершается операция: создание или редактирование.
         /// </summary>
-        private NoteVM _noteCouch;
+        private NoteVM? _noteCouch = null;
+
+        /// <summary>
+        /// Выбранная пользователем заметка.
+        /// </summary>
+        public NoteVM? _selectedNote = null;
 
         /// <summary>
         /// Коллекция, содержащая все созданные заметки.
@@ -43,11 +49,6 @@ namespace RMP2.ViewModel
         /// Коллекция для отображения заметок с учетом значения в строке поиска.
         /// </summary>
         public ObservableCollection<NoteVM> DisplayedNotes { get; } = new ObservableCollection<NoteVM>();
-
-        /// <summary>
-        /// Выбранная пользователем заметка для редактирования.
-        /// </summary>
-        public NoteVM? SelectedNote { get; set; } = null;
 
         /// <summary>
         /// Команда для открытия страницы для создания заметки.
@@ -65,12 +66,12 @@ namespace RMP2.ViewModel
         public Command DeleteCommand { get; private set; }
 
         /// <summary>
-        /// Команда для сохранения внесенных пользователем изменений.
+        /// Команда для сохранения внесенных пользователем изменений на странице заметки.
         /// </summary>
         public Command SaveCommand { get; private set; }
 
         /// <summary>
-        /// Команда для отмены внесенных пользователем изменений.
+        /// Команда для отмены внесенных пользователем изменений на странице заметки.
         /// </summary>
         public Command CancelCommand { get; private set; }
 
@@ -88,7 +89,7 @@ namespace RMP2.ViewModel
         }
 
         /// <summary>
-        /// Возвращает и задает строку поиска заметок.
+        /// Возвращает и задает строку поиска.
         /// </summary>
         public string SearchString
         {
@@ -101,9 +102,9 @@ namespace RMP2.ViewModel
         }
 
         /// <summary>
-        /// Возвращает объект <see cref="NoteVM"/>, над которым совершается операция: создание или редактирование.
+        /// Возвращает заметку <see cref="NoteVM"/>, над которым совершается операция: создание или редактирование.
         /// </summary>
-        public NoteVM NoteCouch
+        public NoteVM? NoteCouch
         {
             get => _noteCouch;
             set
@@ -115,23 +116,34 @@ namespace RMP2.ViewModel
         }
 
         /// <summary>
+        /// Возвращает заметку, выбранную пользователем.
+        /// </summary>
+        public NoteVM? SelectedNote
+        {
+            get => _selectedNote;
+            set
+            {
+                _selectedNote = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
         /// Инициализирует поля для хранения команд.
         /// </summary>
         private MainVM() 
         {
-            _notes.CollectionChanged += (sender, e) => { UpdateDisplayedNotes(); };
+            _notes.CollectionChanged += (sender, e) => UpdateDisplayedNotes();
             OpenPageForCreatingNoteCommand = new Command(OpenPageForCreatingNote);
             OpenPageForEditingNoteCommand = new Command(OpenPageForEditingNote);
             DeleteCommand = new Command(Delete);
             SaveCommand = new Command(Save);
             CancelCommand = new Command(Cancel);
-
-            string s = "";
-            for (int i = 0; i < 5; i++)
+            DatabaseService.GetNotes().ForEach(note =>
             {
-                s += i.ToString();
-                _notes.Add(new NoteVM(s, s));
-            }
+                NoteVM noteVM = new NoteVM { Note = note };
+                _notes.Add(noteVM);
+            });
         }
 
         /// <summary>
@@ -189,6 +201,7 @@ namespace RMP2.ViewModel
         private async void OpenPageForCreatingNote(object parameter)
         {
             NoteCouch = new NoteVM();
+            SelectedNote = null;
             await Shell.Current.GoToAsync("///" + nameof(NotePage));
         }
 
@@ -198,8 +211,7 @@ namespace RMP2.ViewModel
         /// <param name="parameter">Заметка, выбранная пользователем для редактирования.</param>
         private async void OpenPageForEditingNote(object parameter)
         {
-            if (parameter is null) return;
-            SelectedNote = (NoteVM)parameter;
+            if (SelectedNote is null) return;
             NoteCouch = (NoteVM)SelectedNote.Clone();
             await Shell.Current.GoToAsync("///" + nameof(NotePage));
         }
@@ -210,8 +222,10 @@ namespace RMP2.ViewModel
         /// <param name="parameter">Удаляемая заметка.</param>
         private void Delete(object parameter)
         {
-            if (parameter is null) return;
-            _notes.Remove((NoteVM)parameter);
+            if (SelectedNote is null) return;
+            DatabaseService.Delete(SelectedNote.Note);
+            _notes.Remove(SelectedNote);
+            SelectedNote = null;
         }
 
         /// <summary>
@@ -225,14 +239,17 @@ namespace RMP2.ViewModel
             {
                 NoteCouch.ResetCreationTime();
                 _notes.Insert(0, NoteCouch);
+                DatabaseService.Insert(NoteCouch.Note);
             }
             else
             {
-                SelectedNote.Copy(NoteCouch);
+                SelectedNote.Note = NoteCouch.Note;
                 SelectedNote.ResetCreationTime();
-                SelectedNote = null;
+                DatabaseService.Update(SelectedNote.Note);
                 UpdateDisplayedNotes();
             }
+            NoteCouch = null;
+            SelectedNote = null;
             await Shell.Current.GoToAsync("///" + nameof(MainPage));
         }
 
@@ -242,6 +259,7 @@ namespace RMP2.ViewModel
         /// <param name="parameter"></param>
         private async void Cancel(object parameter)
         {
+            NoteCouch = null;
             SelectedNote = null;
             await Shell.Current.GoToAsync("///" + nameof(MainPage));
         }

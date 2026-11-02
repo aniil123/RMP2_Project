@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Globalization;
 using RMP2.ViewModel;
 
-namespace RMP2.View
+namespace RMP2.View.Converters
 {
     internal class AppointedTimeToDateTimeConverter : IValueConverter
     {

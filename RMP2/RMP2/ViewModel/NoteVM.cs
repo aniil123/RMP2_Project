@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
+using System.Reflection;
 using RMP2.Model;
 
 namespace RMP2.ViewModel
@@ -12,19 +13,32 @@ namespace RMP2.ViewModel
     /// <summary>
     /// Заметка расширенная для взаимодействия с View.
     /// </summary>
-    public class NoteVM : Note, INotifyPropertyChanged, ICloneable
+    public class NoteVM : INotifyPropertyChanged, ICloneable
     {
         public event PropertyChangedEventHandler PropertyChanged;
+
+        private Note _note;
+
+        public Note Note 
+        { 
+            get => _note; 
+            set
+            {
+                _note = value;
+                foreach (var prop in typeof(NoteVM).GetProperties())
+                    OnPropertyChanged(prop.Name);
+            }
+        }
 
         /// <summary>
         /// Название заметки.
         /// </summary>
-        public new string Name
+        public string Name
         {
-            get => base.Name;
+            get => Note.Name;
             set
             {
-                base.Name = value;
+                Note.Name = value;
                 OnPropertyChanged();
             }
         }
@@ -32,12 +46,12 @@ namespace RMP2.ViewModel
         /// <summary>
         /// Содержание заметки.
         /// </summary>
-        public new string Content
+        public string Content
         {
-            get => base.Content;
+            get => Note.Content;
             set
             {
-                base.Content = value;
+                Note.Content = value;
                 OnPropertyChanged();
             }
         }
@@ -45,12 +59,12 @@ namespace RMP2.ViewModel
         /// <summary>
         /// Назначенное время заметки.
         /// </summary>
-        public new DateTime AppointedTime
+        public DateTime AppointedTime
         {
-            get => base.AppointedTime;
+            get => Note.AppointedTime;
             set
             {
-                base.AppointedTime = value;
+                Note.AppointedTime = value;
                 OnPropertyChanged();
             }
         }
@@ -58,39 +72,28 @@ namespace RMP2.ViewModel
         /// <summary>
         /// Время создания заметки.
         /// </summary>
-        public new DateTime CreationTime
+        public DateTime CreationTime
         {
-            get => base.CreationTime;
+            get => Note.CreationTime;
             set
             {
-                base.CreationTime = value;
+                Note.CreationTime = value;
                 OnPropertyChanged();
             }
         }
 
-        public NoteVM(string name = "", string content = "", DateTime? appointedTime = null, DateTime? creationTime = null) :
-            base(name, content, appointedTime, creationTime) { }
+        public NoteVM(string name = "", string content = "", DateTime? appointedTime = null, DateTime? creationTime = null)
+            => Note = new Note(name, content, appointedTime, creationTime);
 
         /// <summary>
-        /// Присваивает свойствам текущего объекта значения всех свойств передаваемого объекта,
-        /// создавая полную копию.
+        /// Возвращает полную копию текущего объекта.
         /// </summary>
-        /// <param name="note">Объект, значения свойств которого копируются в свойства текущего объекта.</param>
-        public void Copy(NoteVM note)
-        {
-            Name = note.Name;
-            Content = note.Content;
-            AppointedTime = note.AppointedTime;
-            CreationTime = note.CreationTime;
-        }
-
-        /// <summary>
-        /// Возвращает копию текущего объекта с новым временем создания <see cref="CreationTime"/>.
-        /// </summary>
-        /// <returns>Копия текущего объекта с новым временем создания <see cref="CreationTime"/>.</returns>
+        /// <returns>Копия текущего объекта.</returns>
         public object Clone()
         {
-            return new NoteVM(Name, Content, AppointedTime);
+            NoteVM noteVM = new NoteVM(Name, Content, AppointedTime, CreationTime);
+            noteVM.Note.Id = Note.Id;
+            return noteVM;
         }
 
         /// <summary>
@@ -101,7 +104,7 @@ namespace RMP2.ViewModel
 
         private void OnPropertyChanged([CallerMemberName] string name = "")
         {
-            PropertyChanged(this, new PropertyChangedEventArgs(name));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

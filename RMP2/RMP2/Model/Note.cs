@@ -15,8 +15,8 @@ namespace RMP2.Model
         /// <summary>
         /// Идентификатор заметки.
         /// </summary>
-        [PrimaryKey, AutoIncrement, Column("id")]
-        public int Id { get; set; }
+        [PrimaryKey, Column("id")]
+        public Guid Id { get; set; }
 
         /// <summary>
         /// Название заметки.
@@ -49,8 +49,9 @@ namespace RMP2.Model
         /// <param name="content">Содержание заметки.</param>
         /// <param name="appointedTime">Назначенное время заметки.</param>
         /// <param name="creationTime">Время создания заметки.</param>
-        public Note(string name, string content, DateTime? appointedTime = null, DateTime? creationTime = null)
+        public Note(string name = "", string content = "", DateTime? appointedTime = null, DateTime? creationTime = null)
         {
+            Id = Guid.NewGuid();
             Name = name;
             Content = content;
             AppointedTime = appointedTime == null ? DateTime.Now : (DateTime)appointedTime;
@@ -62,6 +63,7 @@ namespace RMP2.Model
         /// </summary>
         public Note() 
         {
+            Id = Guid.NewGuid();
             Name = "";
             Content = "";
             AppointedTime = DateTime.Now;

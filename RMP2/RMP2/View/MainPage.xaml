@@ -18,7 +18,8 @@
             Placeholder="Поиск"/>
         <ListView 
             x:Name="notesListView"
-            Grid.Row="1" 
+            Grid.Row="1"
+            SelectedItem="{Binding SelectedNote, Mode=TwoWay}"
             ItemsSource="{Binding DisplayedNotes}">
             <ListView.ItemTemplate>
                 <DataTemplate>
@@ -47,8 +48,7 @@
                 Grid.Column="0"
                 Text="Изменить"
                 Margin="3"
-                Command="{Binding OpenPageForEditingNoteCommand}"
-                CommandParameter="{Binding SelectedItem, Source={x:Reference notesListView}}"/>
+                Command="{Binding OpenPageForEditingNoteCommand}"/>
             <Button
                 Grid.Column="1"
                 Text="Создать"
@@ -59,8 +59,7 @@
                 Text="Удалить"
                 Margin="3"
                 BackgroundColor="Red"
-                Command="{Binding DeleteCommand}"
-                CommandParameter="{Binding SelectedItem, Source={x:Reference notesListView}}"/>
+                Command="{Binding DeleteCommand}"/>
         </Grid>
     </Grid>
 

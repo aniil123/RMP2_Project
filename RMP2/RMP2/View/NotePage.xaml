@@ -3,13 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:sys="clr-namespace:System;assembly=netstandard"
              xmlns:v="clr-namespace:RMP2.View"
+             xmlns:conv="clr-namespace:RMP2.View.Converters"
              xmlns:vm="clr-namespace:RMP2.ViewModel"
              x:Class="RMP2.View.NotePage"
              Style="{StaticResource ContentPageStyle}">
 
     <ContentPage.Resources>
         <ResourceDictionary>
-            <v:AppointedTimeToDateTimeConverter x:Key="AppointedTimeToDateTimeConverter"/>
+            <conv:AppointedTimeToDateTimeConverter x:Key="AppointedTimeToDateTimeConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -35,11 +36,14 @@
             Grid.Row="1"
             Text="{Binding NoteCouch.Name}"
             Placeholder="Название"/>
-        <Editor
-            Grid.Row="2"
-            Text="{Binding NoteCouch.Content}"
-            Placeholder="Содержание"
-            VerticalOptions="Fill"/>
+        <Border
+            Grid.Row="2">
+            <Editor
+                Text="{Binding NoteCouch.Content}"
+                Placeholder="Содержание"
+                VerticalOptions="Fill"
+                AutoSize="Disabled"/>
+        </Border>
         <Grid
             Grid.Row="3"
             Margin="0, 10, 0, 0">
