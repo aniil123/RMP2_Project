@@ -21,7 +21,7 @@ namespace RMP2.ViewModel
         public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
-        /// Поля для хранения единственного возможного экземпляра класса <see cref="MainVM"/>.
+        /// Поле для хранения единственного возможного экземпляра класса <see cref="MainVM"/>.
         /// </summary>
         private static MainVM _instance;
 
