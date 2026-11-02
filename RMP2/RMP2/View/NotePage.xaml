@@ -12,50 +12,52 @@
             <v:AppointedTimeToDateTimeConverter x:Key="AppointedTimeToDateTimeConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
-    
-    <AbsoluteLayout
+
+    <Grid
         BindingContext="{x:Static vm:MainVM.Instance}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <HorizontalStackLayout
+            Grid.Row="0">
+            <TimePicker
+                Time="{Binding NoteCouch.AppointedTime, Converter={StaticResource AppointedTimeToDateTimeConverter}, ConverterParameter={x:Type sys:TimeSpan}}"
+                Format="HH:mm"/>
+            <DatePicker
+                Date="{Binding NoteCouch.AppointedTime, Converter={StaticResource AppointedTimeToDateTimeConverter}, ConverterParameter={x:Type sys:DateTime}}"
+                Format="d"
+                MinimumDate="{x:Static sys:DateTime.Today}"/>
+        </HorizontalStackLayout>
+        <Entry
+            Grid.Row="1"
+            Text="{Binding NoteCouch.Name}"
+            Placeholder="Название"/>
+        <Editor
+            Grid.Row="2"
+            Text="{Binding NoteCouch.Content}"
+            Placeholder="Содержание"
+            VerticalOptions="Fill"/>
         <Grid
-            AbsoluteLayout.LayoutFlags="SizeProportional"
-            AbsoluteLayout.LayoutBounds="0, 0, 1, 1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-            <HorizontalStackLayout
-                Grid.Row="0">
-                <TimePicker
-                    Time="{Binding NoteCouch.AppointedTime, Converter={StaticResource AppointedTimeToDateTimeConverter}, ConverterParameter={x:Type sys:TimeSpan}}"
-                    Format="HH:mm"/>
-                <DatePicker
-                    Date="{Binding NoteCouch.AppointedTime, Converter={StaticResource AppointedTimeToDateTimeConverter}, ConverterParameter={x:Type sys:DateTime}}"
-                    Format="d"
-                    MinimumDate="{x:Static sys:DateTime.Today}"/>
-            </HorizontalStackLayout>
-            <Entry
-                Grid.Row="1"
-                Text="{Binding NoteCouch.Name}"
-                Placeholder="Название"/>
-            <Editor
-                Grid.Row="2"
-                Text="{Binding NoteCouch.Content}"
-                Placeholder="Содержание"
-                VerticalOptions="Fill"/>
-        </Grid>
-        <HorizontalStackLayout 
-            AbsoluteLayout.LayoutFlags="PositionProportional"
-            AbsoluteLayout.LayoutBounds="1, 1"
-            Margin="0, 0, 20, 20">  
-            <Button 
+            Grid.Row="3"
+            Margin="0, 10, 0, 0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button
+                Grid.Column="0"
                 Text="Сохранить"
-                WidthRequest="110"
-                Margin="0, 0, 10, 0"
+                Margin="3"
                 Command="{Binding SaveCommand}"/>
             <Button
+                Grid.Column="1"
                 Text="Отменить"
-                WidthRequest="110"
+                Margin="3"
                 Command="{Binding CancelCommand}"/>
-        </HorizontalStackLayout>
-    </AbsoluteLayout>
+        </Grid>
+    </Grid>
+    
 </ContentPage>

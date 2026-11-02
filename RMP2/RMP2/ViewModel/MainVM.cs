@@ -231,6 +231,7 @@ namespace RMP2.ViewModel
                 SelectedNote.Copy(NoteCouch);
                 SelectedNote.ResetCreationTime();
                 SelectedNote = null;
+                UpdateDisplayedNotes();
             }
             await Shell.Current.GoToAsync("///" + nameof(MainPage));
         }
