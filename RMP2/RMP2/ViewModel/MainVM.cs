@@ -147,54 +147,6 @@ namespace RMP2.ViewModel
         }
 
         /// <summary>
-        /// Обновляет коллекцию <see cref="DisplayedNotes"/>.
-        /// </summary>
-        private void UpdateDisplayedNotes()
-        {
-            DisplayedNotes.Clear();
-            if (SearchString == "")
-            {
-                foreach (NoteVM note in _notes)
-                    DisplayedNotes.Add(note);
-            }
-            else
-            {
-                foreach (NoteVM note in _notes)
-                {
-                    if (note.Name.Length < SearchString.Length) continue;
-                    bool coincidence = true;
-                    for (int i = 0; i < SearchString.Length; i++)
-                    {
-                        if (note.Name[i] != SearchString[i])
-                        {
-                            coincidence = false;
-                            break;
-                        }
-                    }
-                    if (coincidence)
-                        DisplayedNotes.Add(note);
-                }
-            }
-            for (int i = 0; i < DisplayedNotes.Count - 1; i++)
-            {
-                DateTime maxTime = DisplayedNotes[i].CreationTime;
-                int index = i;
-                for (int j = i + 1; j < DisplayedNotes.Count; j++)
-                {
-                    if (DisplayedNotes[j].CreationTime > maxTime)
-                    {
-                        maxTime = DisplayedNotes[j].CreationTime;
-                        index = j;
-                    }
-                }
-                NoteVM temp = DisplayedNotes[i];
-                DisplayedNotes[i] = DisplayedNotes[index];
-                DisplayedNotes[index] = temp;
-            }
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DisplayedNotes)));
-        }
-
-        /// <summary>
         /// Открывает страницу для создания заметки.
         /// </summary>
         /// <param name="parameter"></param>
@@ -248,9 +200,9 @@ namespace RMP2.ViewModel
                 DatabaseService.Update(SelectedNote.Note);
                 UpdateDisplayedNotes();
             }
+            await Shell.Current.GoToAsync("///" + nameof(MainPage));
             NoteCouch = null;
             SelectedNote = null;
-            await Shell.Current.GoToAsync("///" + nameof(MainPage));
         }
 
         /// <summary>
@@ -259,9 +211,57 @@ namespace RMP2.ViewModel
         /// <param name="parameter"></param>
         private async void Cancel(object parameter)
         {
+            await Shell.Current.GoToAsync("///" + nameof(MainPage));
             NoteCouch = null;
             SelectedNote = null;
-            await Shell.Current.GoToAsync("///" + nameof(MainPage));
+        }
+
+        /// <summary>
+        /// Обновляет коллекцию <see cref="DisplayedNotes"/>.
+        /// </summary>
+        private void UpdateDisplayedNotes()
+        {
+            DisplayedNotes.Clear();
+            if (SearchString == "")
+            {
+                foreach (NoteVM note in _notes)
+                    DisplayedNotes.Add(note);
+            }
+            else
+            {
+                foreach (NoteVM note in _notes)
+                {
+                    if (note.Name.Length < SearchString.Length) continue;
+                    bool coincidence = true;
+                    for (int i = 0; i < SearchString.Length; i++)
+                    {
+                        if (note.Name[i] != SearchString[i])
+                        {
+                            coincidence = false;
+                            break;
+                        }
+                    }
+                    if (coincidence)
+                        DisplayedNotes.Add(note);
+                }
+            }
+            for (int i = 0; i < DisplayedNotes.Count - 1; i++)
+            {
+                DateTime maxTime = DisplayedNotes[i].CreationTime;
+                int index = i;
+                for (int j = i + 1; j < DisplayedNotes.Count; j++)
+                {
+                    if (DisplayedNotes[j].CreationTime > maxTime)
+                    {
+                        maxTime = DisplayedNotes[j].CreationTime;
+                        index = j;
+                    }
+                }
+                NoteVM temp = DisplayedNotes[i];
+                DisplayedNotes[i] = DisplayedNotes[index];
+                DisplayedNotes[index] = temp;
+            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DisplayedNotes)));
         }
 
         private void OnPropertyChanged([CallerMemberName] string propName = "")
